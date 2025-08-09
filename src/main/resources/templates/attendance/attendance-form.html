@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit} ? 'Edit Attendance' : 'Add Attendance'">Add Attendance - Banyan Informatics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            margin: 0;
+        }
+
+        .navbar-custom {
+            background-color: #1a1a2e !important;
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-custom .navbar-brand {
+            color: white !important;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .navbar-custom .navbar-nav .nav-link {
+            color: white !important;
+            margin-right: 5px;
+            padding: 8px 10px !important;
+        }
+
+        .navbar-custom .navbar-nav .nav-link:hover {
+            color: #ccc !important;
+        }
+
+        .nav-button {
+            padding: 8px 20px;
+            background-color: #2c5364;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: #203a43;
+        }
+
+        .dropdown-menu {
+            background-color: #1a1a2e;
+            border: 1px solid #2c5364;
+        }
+
+        .dropdown-menu .dropdown-item {
+            color: #ffffffcc;
+            padding: 10px 16px;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #203a43;
+            color: white;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #2c5364 0%, #1a1a2e 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2c5364 0%, #203a43 100%);
+            color: white;
+            border-bottom: none;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c5364;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2c5364;
+            box-shadow: 0 0 0 0.2rem rgba(44, 83, 100, 0.25);
+        }
+
+        .btn-primary {
+            background-color: #2c5364;
+            border-color: #2c5364;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #203a43;
+            border-color: #203a43;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .calculated-info {
+            background-color: #e7f3ff;
+            border: 2px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .calculated-info h6 {
+            color: #2c5364;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .work-hours-display {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .work-hours-item {
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .work-hours-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c5364;
+        }
+
+        .work-hours-item .label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .overtime-highlight {
+            color: #ffc107 !important;
+        }
+
+        .footer {
+            background-color: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 3rem;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-col {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .work-hours-display {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/images/banyan-logo.png.png" alt="Banyan Logo" 
+                     style="height:40px; vertical-align: middle; margin-right: 10px;" />
+                BANYAN Informatics
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" 
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    
+                    <li class="nav-item" sec:authorize="hasAuthority('ENGINEER_PAGE')">
+                        <a class="nav-link" href="/engineer-form">Engineer</a>
+                    </li>
+                    
+                    <li class="nav-item" sec:authorize="hasAuthority('CUSTOMER_PAGE')">
+                        <a class="nav-link" href="/customer-form">Customer</a>
+                    </li>
+                    
+                    <li class="nav-item" sec:authorize="hasAuthority('DETAILS_PAGE')">
+                        <a class="nav-link" href="/details">Work Details</a>
+                    </li>
+                    
+                    <li class="nav-item dropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+                        <a class="nav-link dropdown-toggle" href="#" id="authDropdown" 
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Authorization
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/manage-role-access}">Manage-Role-access</a></li>
+                            <li><a class="dropdown-item" th:href="@{/add-user}">Add User</a></li>
+                            <li><a class="dropdown-item" th:href="@{/time-management}">Time</a></li>
+                            <li><a class="dropdown-item" th:href="@{/attendance}">Attendance</a></li>
+                            <li><a class="dropdown-item" th:href="@{/activity-logs}">Activity Logs</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-flex">
+                            <button type="submit" class="nav-button">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1>
+                        <i th:class="${isEdit} ? 'fas fa-edit' : 'fas fa-plus'"></i> 
+                        <span th:text="${isEdit} ? 'Edit Attendance' : 'Add Attendance'"></span>
+                    </h1>
+                    <p th:text="${isEdit} ? 'Modify attendance record details' : 'Create a new attendance record'"></p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="/attendance/list" class="btn btn-light btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5>
+                    <i class="fas fa-user-clock"></i> 
+                    <span th:text="${isEdit} ? 'Edit Attendance Details' : 'Attendance Information'"></span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/attendance/save}" method="post" th:object="${attendance}" id="attendanceForm">
+                    <input type="hidden" th:field="*{id}" />
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="engineer" class="form-label">Engineer *</label>
+                            <select id="engineer" name="engineer.id" class="form-select" required>
+                                <option value="">Select Engineer</option>
+                                <option th:each="engineer : ${engineers}" 
+                                        th:value="${engineer.id}" 
+                                        th:text="${engineer.name}"
+                                        th:selected="${attendance.engineer != null && attendance.engineer.id == engineer.id}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="attendanceDate" class="form-label">Date *</label>
+                            <input type="date" id="attendanceDate" th:field="*{attendanceDate}" 
+                                   class="form-control" required />
+                        </div>
+                    </div>
+
+                    <!-- Time Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="checkInTime" class="form-label">Check-in Time</label>
+                            <input type="time" id="checkInTime" th:field="*{checkInTime}" 
+                                   class="form-control" onchange="calculateHours()" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="checkOutTime" class="form-label">Check-out Time</label>
+                            <input type="time" id="checkOutTime" th:field="*{checkOutTime}" 
+                                   class="form-control" onchange="calculateHours()" />
+                        </div>
+                    </div>
+
+                    <!-- Location Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="checkInLocation" class="form-label">Check-in Location</label>
+                            <input type="text" id="checkInLocation" th:field="*{checkInLocation}" 
+                                   class="form-control" placeholder="e.g., Office, Customer Site" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="checkOutLocation" class="form-label">Check-out Location</label>
+                            <input type="text" id="checkOutLocation" th:field="*{checkOutLocation}" 
+                                   class="form-control" placeholder="e.g., Office, Customer Site" />
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" th:field="*{status}" class="form-select">
+                                <option value="PRESENT">Present</option>
+                                <option value="ABSENT">Absent</option>
+                                <option value="HALF_DAY">Half Day</option>
+                                <option value="LATE">Late</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Work Hours Display -->
+                    <div class="calculated-info" id="calculatedInfo" style="display: none;">
+                        <h6><i class="fas fa-calculator"></i> Calculated Work Hours</h6>
+                        <div class="work-hours-display">
+                            <div class="work-hours-item">
+                                <div class="value" id="totalHours">0:00</div>
+                                <div class="label">Total Work Hours</div>
+                            </div>
+                            <div class="work-hours-item">
+                                <div class="value" id="breakHours">0:00</div>
+                                <div class="label">Break Time</div>
+                            </div>
+                            <div class="work-hours-item">
+                                <div class="value overtime-highlight" id="overtimeHours">0:00</div>
+                                <div class="label">Overtime</div>
+                            </div>
+                            <div class="work-hours-item">
+                                <div class="value" id="statusDisplay">-</div>
+                                <div class="label">Auto Status</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-end gap-3 mt-4">
+                        <a href="/attendance/list" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i th:class="${isEdit} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                            <span th:text="${isEdit} ? 'Update Attendance' : 'Save Attendance'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2005 Banyan Informatics. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function calculateHours() {
+            const checkInTime = document.getElementById('checkInTime').value;
+            const checkOutTime = document.getElementById('checkOutTime').value;
+            
+            if (!checkInTime || !checkOutTime) {
+                document.getElementById('calculatedInfo').style.display = 'none';
+                return;
+            }
+            
+            // Calculate total time
+            const checkIn = new Date('2000-01-01T' + checkInTime);
+            const checkOut = new Date('2000-01-01T' + checkOutTime);
+            
+            if (checkOut <= checkIn) {
+                document.getElementById('calculatedInfo').style.display = 'none';
+                return;
+            }
+            
+            let totalMinutes = (checkOut - checkIn) / (1000 * 60);
+            
+            // Calculate break time
+            let breakMinutes = 0;
+            
+            // Calculate work hours (total - break)
+            const workMinutes = totalMinutes - breakMinutes;
+            const standardWorkMinutes = 480; // 8 hours
+            
+            // Calculate overtime
+            const overtimeMinutes = Math.max(0, workMinutes - standardWorkMinutes);
+            
+            // Determine status
+            let status = 'ABSENT';
+            if (workMinutes >= standardWorkMinutes) {
+                status = 'PRESENT';
+            } else if (workMinutes >= standardWorkMinutes / 2) {
+                status = 'HALF_DAY';
+            } else if (workMinutes > 0) {
+                status = 'LATE';
+            }
+            
+            // Display results
+            document.getElementById('totalHours').textContent = formatMinutes(workMinutes);
+            document.getElementById('breakHours').textContent = formatMinutes(breakMinutes);
+            document.getElementById('overtimeHours').textContent = formatMinutes(overtimeMinutes);
+            document.getElementById('statusDisplay').textContent = status;
+            
+            // Update status dropdown
+            document.getElementById('status').value = status;
+            
+            // Show calculated info
+            document.getElementById('calculatedInfo').style.display = 'block';
+        }
+        
+        function formatMinutes(minutes) {
+            if (minutes < 0) minutes = 0;
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.floor(minutes % 60);
+            return hours + ':' + mins.toString().padStart(2, '0');
+        }
+        
+        // Calculate on page load if times are already filled
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateHours();
+        });
+        
+        // Set current date if creating new record
+        document.addEventListener('DOMContentLoaded', function() {
+            const attendanceDateInput = document.getElementById('attendanceDate');
+            if (!attendanceDateInput.value) {
+                const today = new Date();
+                attendanceDateInput.value = today.toISOString().split('T')[0];
+            }
+        });
+    </script>
+</body>
+</html>

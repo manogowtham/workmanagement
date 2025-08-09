@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit User - Banyan Informatics</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f8fb;
+      margin: 0;
+    }
+
+   header {
+      background-color: #1a1a2e;
+      color: white;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-links a,
+.dropbtn {
+  margin-left: 20px;
+  color: #ffffffcc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-links a:hover,
+.dropbtn:hover {
+  color: white;
+}
+
+.nav-button {
+  margin-left: 20px;
+  padding: 10px 20px;
+  background-color: #2c5364;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #203a43;
+}
+
+/* DROPDOWN MENU */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #1a1a2e;
+  min-width: 160px;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: #ffffffcc;
+  padding: 10px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #203a43;
+  color: white;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  color: white;
+}
+
+/* RESPONSIVE NAVBAR */
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links a,
+  .dropbtn,
+  .nav-button {
+    margin: 10px 0;
+  }
+
+  .dropdown-content {
+    position: static;
+    background-color: #2c3e50;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: none;
+  }
+
+  .dropdown.open .dropdown-content {
+    display: block;
+  }
+}
+
+
+    button, .btn-link {
+        font-size: 14px;
+        padding: 10px;
+      }
+      
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    button, .btn-link {
+      flex: 1;
+      padding: 12px;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    button {
+      background-color: #2c5364;
+      color: white;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #203a43;
+    }
+
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .btn-link {
+      background-color: #e9ecef;
+      color: #2c5364;
+      border: 1px solid #2c5364;
+      text-align: center;
+    }
+
+    .btn-link:hover {
+      background-color: #d4d9de;
+      color: #203a43;
+      border-color: #203a43;
+    }
+
+    .container {
+      width: 60%;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c5364;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #2c5364;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+      footer {
+      background-color: #1a1a2e;
+      color: white;
+      text-align: center;
+      padding: 0;
+      position: fixed;
+      bottom: 0;
+      height: 40px;
+      line-height: 40px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="/images/banyan-logo.png.png" alt="Banyan Logo" style="height:40px; vertical-align: middle; margin-right: 10px;" />
+    BANYAN Informatics
+  </div>
+
+  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+
+  <nav>
+    <div class="nav-links">
+      <a href="/">Home</a>
+
+      <!-- Show Engineer link only if user has permission -->
+     <a href="/engineer-form" sec:authorize="hasAuthority('ENGINEER_PAGE')">Engineer</a>
+
+      <!-- Show Customer link only if user has permission -->
+       <a href="/customer-form" sec:authorize="hasAuthority('CUSTOMER_PAGE')">Customer</a>
+
+      <!-- Show Work Details link only if user has permission -->
+      <a href="/details" sec:authorize="hasAuthority('DETAILS_PAGE')">Work Details</a>
+
+      <div class="dropdown" id="authDropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+        <a href="#" class="dropbtn" onclick="toggleDropdown(event)">Authorization ▾</a>
+        <div class="dropdown-content">
+          <!-- Only SUPERADMIN can see Manage Role Permissions -->
+          <a th:href="@{/manage-role-access}" >Manage-Role-access</a>
+
+          <!-- Only SUPERADMIN can see Add User -->
+          <a th:href="@{/add-user}" >Add User</a>
+          <a th:href="@{/time-management}" >Time</a>
+          <a th:href="@{/activity-logs}" >Activity Logs</a>
+          
+        </div>
+      </div>
+
+      <form th:action="@{/logout}" method="post" style="display:inline; margin:0; padding:0; border:none; background:none;">
+        <button type="submit" class="nav-button">Logout</button>
+      </form>
+    </div>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Edit User</h2>
+  <form th:action="@{'/edit-user/' + ${user.id}}" method="post" th:object="${user}">
+    <label for="username">Username</label>
+    <input type="text" id="username" th:field="*{username}" required />
+
+    <label for="password">Password</label>
+    <input type="password" id="password" th:field="*{password}" placeholder="Leave empty to keep current password" />
+
+    <label for="role">Role</label>
+    <select id="role" name="role.name" required>
+      <option th:each="role : ${roles}" 
+              th:value="${role.name}" 
+              th:text="${role.name}"
+              th:selected="${user.role != null && user.role.name == role.name}">
+      </option>
+    </select>
+
+    <label for="engineer">Engineer</label>
+    <select id="engineer" name="engineer.id">
+      <option value="">Select Engineer (Optional)</option>
+      <option th:each="engineer : ${engineers}" 
+              th:value="${engineer.id}" 
+              th:text="${engineer.name}"
+              th:selected="${user.engineer != null && user.engineer.id == engineer.id}">
+      </option>
+    </select>
+
+    <div class="btn-group">
+      <button type="submit">Update User</button>
+      <a href="/user-list" class="btn-link">Cancel</a>
+    </div>
+  </form>
+
+  <a href="/user-list" class="back-link">← Back to User List</a>
+</div>
+
+<footer>
+  &copy; 2005 Banyan Informatics. All rights reserved.
+</footer>
+<script> // NAVBAR toggle button
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    // Dropdown toggle for small screens
+    const authDropdown = document.getElementById('authDropdown');
+    authDropdown.querySelector('.dropbtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      authDropdown.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

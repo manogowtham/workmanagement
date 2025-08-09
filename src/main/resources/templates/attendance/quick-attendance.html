@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Quick Attendance - Banyan Informatics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .quick-attendance-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .time-display {
+            background: linear-gradient(135deg, #2c5364 0%, #1a1a2e 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .current-time {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .btn-attendance {
+            padding: 1rem 2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 15px;
+            margin: 0.5rem 0;
+            width: 100%;
+            min-height: 70px;
+        }
+
+        .btn-check-in {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            color: white;
+        }
+
+        .btn-check-in:hover {
+            background: linear-gradient(135deg, #218838, #1fa787);
+            color: white;
+        }
+
+        .btn-check-out {
+            background: linear-gradient(135deg, #dc3545, #e83e8c);
+            border: none;
+            color: white;
+        }
+
+        .btn-check-out:hover {
+            background: linear-gradient(135deg, #c82333, #d91a72);
+            color: white;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-present { background-color: #d4edda; color: #155724; }
+        .status-absent { background-color: #f8d7da; color: #721c24; }
+        .status-half-day { background-color: #fff3cd; color: #856404; }
+        .status-late { background-color: #ffeaa7; color: #856404; }
+
+        .brand-header {
+            margin-bottom: 2rem;
+        }
+
+        .brand-header img {
+            height: 50px;
+            margin-bottom: 1rem;
+        }
+
+        .brand-header h4 {
+            color: #2c5364;
+            font-weight: 700;
+        }
+
+        .location-input {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .location-input label {
+            font-weight: 600;
+            color: #2c5364;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .location-input input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .location-input input:focus {
+            border-color: #2c5364;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(44, 83, 100, 0.25);
+        }
+
+        @media (max-width: 576px) {
+            .current-time {
+                font-size: 2rem;
+            }
+            
+            .quick-attendance-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quick-attendance-card">
+        <!-- Brand Header -->
+        <div class="brand-header">
+            <img src="/images/banyan-logo.png.png" alt="Banyan Logo" />
+            <h4>BANYAN Informatics</h4>
+            <p class="text-muted">Quick Attendance</p>
+        </div>
+
+        <!-- Current Time Display -->
+        <div class="time-display">
+            <div class="current-time" id="currentTime"></div>
+            <div class="current-date" id="currentDate"></div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Engineer Status -->
+        <div th:if="${currentUser != null and currentUser.engineer != null}">
+            <h5 class="mb-3">Welcome, <span th:text="${currentUser.engineer.name}">Engineer Name</span>!</h5>
+            
+            <!-- Today's Status -->
+            <div th:if="${todayAttendance != null}" class="status-card">
+                <div th:if="${todayAttendance.checkInTime != null and todayAttendance.checkOutTime == null}" class="alert alert-info mb-2">
+                    <strong><i class="fas fa-user-check"></i> Currently Working</strong><br>
+                    <small>Started at <span th:text="${todayAttendance.checkInTime}">Check-in time</span></small>
+                </div>
+                
+                <div th:if="${todayAttendance.checkOutTime != null}" class="alert alert-success mb-2">
+                    <strong><i class="fas fa-check-circle"></i> Work Complete</strong><br>
+                    <small th:if="${todayAttendance.formattedTotalWorkHours != null}">
+                        Total: <span th:text="${todayAttendance.formattedTotalWorkHours}">Work hours</span>
+                    </small>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <small>Status:</small>
+                    <span class="status-badge status-present" th:text="${todayAttendance.status}">Status</span>
+                </div>
+            </div>
+
+            <!-- Location Inputs -->
+            <div th:if="${todayAttendance == null or todayAttendance.checkInTime == null}" class="location-input">
+                <label for="quickCheckInLocation">Check-in Location</label>
+                <input type="text" id="quickCheckInLocation" name="quickCheckInLocation" placeholder="Enter check-in location" />
+            </div>
+            <div th:if="${todayAttendance != null and todayAttendance.checkInTime != null and todayAttendance.checkOutTime == null}" class="location-input">
+                <label for="quickCheckOutLocation">Check-out Location</label>
+                <input type="text" id="quickCheckOutLocation" name="quickCheckOutLocation" placeholder="Enter check-out location" />
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="d-grid gap-3 mt-4">
+                <!-- Check In Button -->
+                <button th:if="${canCheckIn == true}" 
+                        type="button" 
+                        class="btn btn-check-in btn-attendance" 
+                        onclick="quickCheckIn()">
+                    <i class="fas fa-sign-in-alt"></i> Check In Now
+                </button>
+                
+                <!-- Check Out Button -->
+                <button th:if="${canCheckOut == true}" 
+                        type="button" 
+                        class="btn btn-check-out btn-attendance" 
+                        onclick="quickCheckOut()">
+                    <i class="fas fa-sign-out-alt"></i> Check Out Now
+                </button>
+                
+                <!-- Already Completed -->
+                <div th:if="${canCheckIn == false and canCheckOut == false}" class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Attendance completed for today!
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="mt-4">
+                <a href="/attendance" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="fas fa-list"></i> Full View
+                </a>
+                <a href="/" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-home"></i> Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Non-Engineer User -->
+        <div th:if="${currentUser == null or currentUser.engineer == null}">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> 
+                This quick attendance feature is only available for engineers.
+            </div>
+            <a href="/attendance" class="btn btn-primary">Go to Full Attendance Page</a>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('currentDate').textContent = dateString;
+        }
+        
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime(); // Initial call
+
+        // Quick Check-in with current time and location
+        function quickCheckIn() {
+            const now = new Date();
+            const timeString = now.toTimeString().slice(0, 5); // HH:MM format
+            const location = document.getElementById('quickCheckInLocation').value || '';
+
+            // Show loading state
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking In...';
+            button.disabled = true;
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/attendance/check-in';
+
+            const timeInput = document.createElement('input');
+            timeInput.type = 'hidden';
+            timeInput.name = 'checkInTime';
+            timeInput.value = timeString;
+
+            const locationInput = document.createElement('input');
+            locationInput.type = 'hidden';
+            locationInput.name = 'checkInLocation';
+            locationInput.value = location;
+
+            // Add redirect parameter for quick attendance page
+            const redirectInput = document.createElement('input');
+            redirectInput.type = 'hidden';
+            redirectInput.name = 'redirect';
+            redirectInput.value = '/attendance/quick';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = csrfToken;
+
+            form.appendChild(timeInput);
+            form.appendChild(locationInput);
+            form.appendChild(redirectInput);
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Quick Check-out with current time and location
+        function quickCheckOut() {
+            const now = new Date();
+            const timeString = now.toTimeString().slice(0, 5); // HH:MM format
+            const location = document.getElementById('quickCheckOutLocation').value || '';
+
+            // Show loading state
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Out...';
+            button.disabled = true;
+
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/attendance/check-out';
+
+            const timeInput = document.createElement('input');
+            timeInput.type = 'hidden';
+            timeInput.name = 'checkOutTime';
+            timeInput.value = timeString;
+
+            const locationInput = document.createElement('input');
+            locationInput.type = 'hidden';
+            locationInput.name = 'checkOutLocation';
+            locationInput.value = location;
+
+            // Add redirect parameter for quick attendance page
+            const redirectInput = document.createElement('input');
+            redirectInput.type = 'hidden';
+            redirectInput.name = 'redirect';
+            redirectInput.value = '/attendance/quick';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = csrfToken;
+
+            form.appendChild(timeInput);
+            form.appendChild(locationInput);
+            form.appendChild(redirectInput);
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

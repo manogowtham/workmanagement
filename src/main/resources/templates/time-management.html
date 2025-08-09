@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Engineer Time Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #f4f8fb;
+        }
+
+        /* ===== NAVBAR STYLES ===== */
+        .navbar-custom {
+            background-color: #1a1a2e !important;
+            padding: 0.5rem 1rem;
+        }
+
+        .navbar-custom .container-fluid {
+            justify-content: space-between;
+        }
+
+        .navbar-custom .navbar-brand {
+            color: white !important;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .navbar-custom .navbar-nav {
+            margin-right: 0 !important;
+        }
+
+        .navbar-custom .navbar-collapse {
+            justify-content: flex-end;
+        }
+
+        .navbar-custom .navbar-nav .nav-link {
+            color: white !important;
+            margin-right: 5px;
+            padding: 8px 10px !important;
+        }
+
+        .navbar-custom .navbar-nav .nav-link:hover {
+            color: #ccc !important;
+        }
+
+        .navbar-custom .navbar-toggler {
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .navbar-custom .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ===== DROPDOWN STYLES ===== */
+        .dropdown-menu {
+            background-color: #1a1a2e;
+            border: 1px solid #2c5364;
+        }
+
+        .dropdown-menu .dropdown-item {
+            color: #ffffffcc;
+            padding: 10px 16px;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #203a43;
+            color: white;
+        }
+
+        /* ===== BUTTON STYLES ===== */
+        .nav-button {
+            padding: 8px 20px;
+            background-color: #2c5364;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: #203a43;
+        }
+
+        .btn-custom-primary {
+            background-color: #2c5364;
+            border-color: #2c5364;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom-primary:hover {
+            background-color: #203a43;
+            border-color: #203a43;
+            color: white;
+        }
+
+        .btn-custom-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            color: white;
+        }
+
+        /* ===== LAYOUT STYLES ===== */
+        .page-header {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            color: #2c5364;
+            font-weight: 700;
+            font-size: 2rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto 60px auto;
+            padding: 0 15px;
+        }
+
+        /* Card style for sections */
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+            padding: 25px 30px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c5364;
+            border-bottom: 3px solid #2c5364;
+            padding-bottom: 8px;
+            margin-bottom: 25px;
+        }
+
+        /* Form styles using Bootstrap grid */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .form-col {
+            flex: 1 1 45%;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        select,
+        input[type="date"],
+        input[readonly] {
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #fff;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus,
+        input[type="date"]:focus,
+        input[readonly]:focus {
+            outline: none;
+            border-color: #2c5364;
+            box-shadow: 0 0 5px rgba(44, 83, 100, 0.5);
+        }
+
+        input[readonly] {
+            background-color: #f5f5f5;
+            font-weight: 600;
+            color: #444;
+            cursor: default;
+        }
+
+        /* Button container */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        thead {
+            background-color: #2c5364;
+            color: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #e6f0fa;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 0;
+            position: fixed;
+            bottom: 0;
+            height: 40px;
+            line-height: 40px;
+            width: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-col {
+                flex: 1 1 100%;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button-container .btn {
+                width: 220px;
+            }
+
+            .page-header h2 {
+                font-size: 1.6rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body >
+    <!-- ===== NAVIGATION BAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/images/banyan-logo.png.png" alt="Banyan Logo" 
+                     style="height:40px; vertical-align: middle; margin-right: 10px;" />
+                BANYAN Informatics
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" 
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    
+                    <!-- Show Engineer link only if user has permission -->
+                    <li class="nav-item" sec:authorize="hasAuthority('ENGINEER_PAGE')">
+                        <a class="nav-link" href="/engineer-form">Engineer</a>
+                    </li>
+                    
+                    <!-- Show Customer link only if user has permission -->
+                    <li class="nav-item" sec:authorize="hasAuthority('CUSTOMER_PAGE')">
+                        <a class="nav-link" href="/customer-form">Customer</a>
+                    </li>
+                    
+                    <!-- Show Work Details link only if user has permission -->
+                    <li class="nav-item" sec:authorize="hasAuthority('DETAILS_PAGE')">
+                        <a class="nav-link" href="/details">Work Details</a>
+                    </li>
+                    
+                    <!-- Authorization dropdown for SUPERADMIN -->
+                    <li class="nav-item dropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+                        <a class="nav-link dropdown-toggle" href="#" id="authDropdown" 
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Authorization
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/manage-role-access}">Manage-Role-access</a></li>
+                            <li><a class="dropdown-item" th:href="@{/add-user}">Add User</a></li>
+                            <li><a class="dropdown-item" th:href="@{/time-management}">Time</a></li>
+                            <li><a class="dropdown-item" th:href="@{/activity-logs}">Activity Logs</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post" class="d-flex">
+                            <button type="submit" class="nav-button">Logout</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+  <!-- ===== PAGE HEADER ===== -->
+<div class="container py-4">
+  <div class="bg-light rounded shadow-sm p-4 mb-4 border border-primary">
+    <h2 class="text-primary mb-1">Engineer Time Management</h2>
+    <p class="text-muted mb-0">Calculate Travel & Office Hours for Engineers</p>
+  </div>
+
+  <!-- ===== FORM SECTION ===== -->
+  <div class="bg-white rounded shadow-sm p-4 mb-4 border">
+    <h5 class="text-dark border-bottom pb-2 mb-3">Select Engineer and Date Range</h5>
+    <form id="timeManagementForm" onsubmit="event.preventDefault(); calculateHours();">
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label for="engineer" class="form-label">Engineer Name</label>
+          <select id="engineer" class="form-select">
+            <option value="">-- Select Engineer --</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="fromDate" class="form-label">Start Date</label>
+          <input type="date" id="fromDate" class="form-control" />
+        </div>
+        <div class="col-md-4">
+          <label for="toDate" class="form-label">End Date</label>
+          <input type="date" id="toDate" class="form-control" />
+        </div>
+      </div>
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary px-4">Get Travel & Office Hours</button>
+        <button type="button" class="btn btn-secondary px-4" onclick="resetForm()">Reset</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===== CALCULATED HOURS SECTION ===== -->
+  <div class="bg-white rounded shadow-sm p-4 mb-4 border">
+    <h5 class="text-dark border-bottom pb-2 mb-3">Calculated Working Hours</h5>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label for="travelHours" class="form-label">Travel Hours</label>
+        <input type="text" id="travelHours" readonly class="form-control" />
+      </div>
+      <div class="col-md-3">
+        <label for="officeHours" class="form-label">In-Office Hours</label>
+        <input type="text" id="officeHours" readonly class="form-control" />
+      </div>
+      <div class="col-md-3">
+        <label for="customerHours" class="form-label">Customer Hours</label>
+        <input type="text" id="customerHours" readonly class="form-control" />
+      </div>
+      <div class="col-md-3">
+        <label for="totalHours" class="form-label">Total Working Hours</label>
+        <input type="text" id="totalHours" readonly class="form-control" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WORK DETAILS TABLE ===== -->
+  <div class="bg-white rounded shadow-sm p-4 border">
+    <h5 class="text-dark border-bottom pb-2 mb-3">Detailed Work Records</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover" id="workDetailsTable">
+        <thead class="table-primary text-center">
+          <tr>
+            <th>Engineer Name</th>
+            <th>Customer Name</th>
+            <th>Date</th>
+            <th>In Time</th>
+            <th>Out Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>&copy; 2005 Banyan Informatics. All rights reserved.</footer>
+
+    <!-- Bootstrap JS -->
+   
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== GLOBAL VARIABLES =====
+        let allWorkDetails = [];
+
+  function timeStrToMinutes(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function minutesToHHMM(mins) {
+    const hours = Math.floor(mins / 60);
+    const minutes = mins % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+  }
+
+  function isSameDay(date1, date2) {
+    return date1 === date2;
+  }
+
+  function getDateTimeInMinutes(date, time) {
+    // Convert date and time to total minutes for comparison
+    const [year, month, day] = date.split('-').map(Number);
+    const [hours, minutes] = time.split(':').map(Number);
+    
+    // Create a simple day offset (assuming dates are close together)
+    const dayOffset = (month - 1) * 30 + day; // Simplified calculation
+    return dayOffset * 24 * 60 + hours * 60 + minutes;
+  }
+
+  function clearFields() {
+    document.getElementById('travelHours').value = '';
+    document.getElementById('officeHours').value = '';
+    document.getElementById('customerHours').value = '';
+    document.getElementById('totalHours').value = '';
+  }
+
+  function clearTable() {
+    document.querySelector('#workDetailsTable tbody').innerHTML = '';
+  }
+
+  function populateEngineers() {
+    fetch('/api/time-management-engineers')
+      .then(res => res.json())
+      .then(engineers => {
+        const select = document.getElementById('engineer');
+        engineers.forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error('Error loading engineers:', err);
+        alert('Could not load engineers list.');
+      });
+  }
+
+  function populateCustomers() {
+    // This function is kept for potential future use
+    // Currently no customer dropdown exists in the UI
+    fetch('/api/time-management-customers')
+      .then(res => res.json())
+      .then(customers => {
+        console.log('Available customers:', customers);
+        // Customer dropdown not implemented in current UI
+      })
+      .catch(err => {
+        console.error('Error loading customers:', err);
+        // Silent fail since customer dropdown is not used
+      });
+  }
+
+  function populateTable(data) {
+    const tbody = document.querySelector("#workDetailsTable tbody");
+    tbody.innerHTML = "";
+    data.forEach(workDetail => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${workDetail.engineerName || ''}</td>
+        <td>${workDetail.customerName || ''}</td>
+        <td>${workDetail.date || ''}</td>
+        <td>${workDetail.inTime || ''}</td>
+        <td>${workDetail.outTime || ''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function loadWorkDetails() {
+    fetch('/api/work-details')
+      .then(res => res.json())
+      .then(data => {
+        allWorkDetails = data;
+        populateTable(allWorkDetails);
+      })
+      .catch(error => {
+        console.error('Failed to load work details:', error);
+        alert('Could not load work details.');
+      });
+  }
+
+  function processFilteredData(filteredData, fromDate, toDate) {
+    // Sort the data by date and time
+    filteredData.sort((a, b) => {
+      if (a.date === b.date) {
+        return timeStrToMinutes(a.inTime || "00:00") - timeStrToMinutes(b.inTime || "00:00");
+      }
+      return a.date.localeCompare(b.date);
+    });
+
+    let inOfficeMinutes = 0;
+    let customerMinutes = 0;
+    let travelMinutes = 0;
+    let hasMissingLogs = false;
+
+    // Calculate In-Office Hours and Customer Hours
+    for (let i = 0; i < filteredData.length; i++) {
+      if (!filteredData[i].inTime || !filteredData[i].outTime) {
+        hasMissingLogs = true;
+        continue; // Skip entries with missing times
+      }
+      
+      const inMin = timeStrToMinutes(filteredData[i].inTime);
+      const outMin = timeStrToMinutes(filteredData[i].outTime);
+      
+      // Ensure out time is after in time
+      if (outMin <= inMin) {
+        continue; // Skip invalid time entries
+      }
+      
+      const workDuration = outMin - inMin;
+      
+      // Calculate In-Office Hours (search for entries with customer name "In Office")
+      if (filteredData[i].customerName && filteredData[i].customerName.toLowerCase() === "in office") {
+        inOfficeMinutes += workDuration;
+      } else {
+        // Customer Hours (all entries except "In Office" are customer hours)
+        customerMinutes += workDuration;
+      }
+    }
+
+    // Calculate Travel Hours (time between 1st customer out time and 2nd customer in time)
+    for (let i = 0; i < filteredData.length - 1; i++) {
+      // Skip if current or next entry has missing times
+      if (!filteredData[i].outTime || !filteredData[i + 1].inTime || 
+          !filteredData[i].date || !filteredData[i + 1].date) {
+        continue;
+      }
+      
+      const currentDate = filteredData[i].date;
+      const nextDate = filteredData[i + 1].date;
+      
+      // Only calculate travel time for entries on the same day
+      // or consecutive days with reasonable time gaps
+      if (isSameDay(currentDate, nextDate)) {
+        const currentOutMin = timeStrToMinutes(filteredData[i].outTime);
+        const nextInMin = timeStrToMinutes(filteredData[i + 1].inTime);
+        
+        // Calculate travel time only if next in time is after current out time
+        if (nextInMin > currentOutMin) {
+          const travelTime = nextInMin - currentOutMin;
+          // Only add reasonable travel times (between 5 minutes and 4 hours)
+          if (travelTime >= 5 && travelTime <= 240) { // 5 min to 4 hours
+            travelMinutes += travelTime;
+          }
+        }
+      } else {
+        // For different days, use datetime comparison
+        const currentDateTime = getDateTimeInMinutes(currentDate, filteredData[i].outTime);
+        const nextDateTime = getDateTimeInMinutes(nextDate, filteredData[i + 1].inTime);
+        
+        if (nextDateTime > currentDateTime) {
+          const travelTime = nextDateTime - currentDateTime;
+          // Only add reasonable travel times (between 5 minutes and 4 hours)
+          if (travelTime >= 5 && travelTime <= 240) { // 5 min to 4 hours
+            travelMinutes += travelTime;
+          }
+        }
+      }
+    }
+
+    // Total Working Hours = Travel Hours + In-Office Hours + Customer Hours
+    const totalMinutes = travelMinutes + inOfficeMinutes + customerMinutes;
+
+    // Display calculated hours
+    document.getElementById('travelHours').value = minutesToHHMM(travelMinutes);
+    document.getElementById('officeHours').value = minutesToHHMM(inOfficeMinutes);
+    document.getElementById('customerHours').value = minutesToHHMM(customerMinutes);
+    document.getElementById('totalHours').value = minutesToHHMM(totalMinutes);
+
+    // Update the table with filtered data
+    populateTable(filteredData);
+
+    // Clear any previous alerts
+    clearAlerts();
+
+    // Show alerts for various conditions
+    if (hasMissingLogs) {
+      showAlert('Warning: Some entries have missing in-time or out-time logs.');
+    }
+
+    // Check for overtime (considering only actual work hours, not travel)
+    const actualWorkMinutes = inOfficeMinutes + customerMinutes;
+    const overtimeThresholdMinutes = 8 * 60; // 8 hours
+    if (actualWorkMinutes > overtimeThresholdMinutes) {
+      const overtimeMinutes = actualWorkMinutes - overtimeThresholdMinutes;
+      showAlert(`Alert: Overtime detected! Work hours exceed 8 hours by ${minutesToHHMM(overtimeMinutes)}.`);
+    }
+
+    // Show summary information
+    console.log('Time Calculation Summary:');
+    console.log(`Travel Hours: ${minutesToHHMM(travelMinutes)}`);
+    console.log(`In-Office Hours: ${minutesToHHMM(inOfficeMinutes)}`);
+    console.log(`Customer Hours: ${minutesToHHMM(customerMinutes)}`);
+    console.log(`Total Hours: ${minutesToHHMM(totalMinutes)}`);
+    console.log(`Records processed: ${filteredData.length}`);
+  }
+
+  function calculateHours() {
+    const engineer = document.getElementById('engineer').value;
+    const fromDate = document.getElementById('fromDate').value;
+    const toDate = document.getElementById('toDate').value;
+
+    if (!engineer || !fromDate || !toDate) {
+      alert('Please select Engineer, From Date, and To Date');
+      return;
+    }
+
+    // Validate date range
+    if (new Date(fromDate) > new Date(toDate)) {
+      alert('Start Date cannot be after End Date');
+      return;
+    }
+
+    // Add debugging information
+    console.log('Calculating hours for:', {
+      engineer: engineer,
+      fromDate: fromDate,
+      toDate: toDate,
+      isSingleDay: fromDate === toDate
+    });
+
+    fetch(`/api/work-details?engineerName=${encodeURIComponent(engineer)}&startDate=${encodeURIComponent(fromDate)}&endDate=${encodeURIComponent(toDate)}`)
+      .then(res => {
+        console.log('API Response status:', res.status);
+        return res.json();
+      })
+      .then(apiData => {
+        console.log('API data received:', apiData.length, 'records');
+        
+        // Since the API is not filtering properly, do client-side filtering
+        const filteredData = apiData.filter(detail => {
+          const engineerMatch = detail.engineerName === engineer;
+          const dateMatch = detail.date >= fromDate && detail.date <= toDate;
+          return engineerMatch && dateMatch;
+        });
+        
+        console.log('Client-side filtered data:', filteredData.length, 'records');
+        console.log('Sample filtered record:', filteredData[0]);
+        
+        if (filteredData.length === 0) {
+          const message = fromDate === toDate 
+            ? `No work details found for engineer "${engineer}" on ${fromDate}`
+            : `No work details found for engineer "${engineer}" between ${fromDate} and ${toDate}`;
+          alert(message);
+          clearFields();
+          clearTable();
+          clearAlerts();
+          return;
+        }
+
+        // Process the filtered data
+        processFilteredData(filteredData, fromDate, toDate);
+      })
+      .catch(error => {
+        console.error('Failed to load filtered work details:', error);
+        alert('Could not load filtered work details. Please check your network connection and try again.');
+        
+        // Try to fallback to client-side filtering if API fails
+        console.log('Attempting client-side filtering as fallback...');
+        if (allWorkDetails && allWorkDetails.length > 0) {
+          const clientFilteredData = allWorkDetails.filter(detail => {
+            const engineerMatch = detail.engineerName === engineer;
+            const dateMatch = detail.date >= fromDate && detail.date <= toDate;
+            return engineerMatch && dateMatch;
+          });
+          
+          if (clientFilteredData.length > 0) {
+            console.log('Client-side filtered data:', clientFilteredData);
+            alert('API failed, using cached data for calculation...');
+            
+            // Process the client-filtered data using the same logic
+            processFilteredData(clientFilteredData, fromDate, toDate);
+          } else {
+            console.log('No matching data found in cached data either');
+            alert('No data found for the selected engineer and date range.');
+          }
+        }
+      });
+  }
+
+  function showAlert(message) {
+    let alertContainer = document.getElementById('alertContainer');
+    if (!alertContainer) {
+      alertContainer = document.createElement('div');
+      alertContainer.id = 'alertContainer';
+      alertContainer.style.marginTop = '20px';
+      alertContainer.style.padding = '10px';
+      alertContainer.style.border = '1px solid red';
+      alertContainer.style.backgroundColor = '#ffe6e6';
+      alertContainer.style.color = 'red';
+      alertContainer.style.fontWeight = 'bold';
+      alertContainer.style.borderRadius = '5px';
+      const container = document.querySelector('.content-container');
+      container.insertBefore(alertContainer, container.firstChild);
+    }
+    const alertMessage = document.createElement('div');
+    alertMessage.textContent = message;
+    alertContainer.appendChild(alertMessage);
+  }
+
+  function clearAlerts() {
+    const alertContainer = document.getElementById('alertContainer');
+    if (alertContainer) {
+      alertContainer.remove();
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('engineer').value = "";
+    document.getElementById('fromDate').value = "";
+    document.getElementById('toDate').value = "";
+    clearFields();
+    clearAlerts();
+    populateTable(allWorkDetails);
+  }
+
+    window.addEventListener('DOMContentLoaded', () => {
+    populateEngineers();
+    populateCustomers();
+    loadWorkDetails();
+    
+    // Test API connection on page load
+    // setTimeout(() => {
+    //   testApiConnection();
+    // }, 1000);
+  });
+    </script>
+
+    <!-- Bootstrap JS and Popper.js for navbar toggle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

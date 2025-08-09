@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Activity Logs - Banyan Informatics</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #f4f8fb;
+    }
+    .navbar-custom {
+      background-color: #1a1a2e !important;
+      padding: 0.5rem 1rem;
+    }
+    .navbar-custom .container-fluid {
+      justify-content: space-between;
+    }
+    .navbar-custom .navbar-brand {
+      color: white !important;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .navbar-custom .navbar-nav {
+      margin-right: 0 !important;
+    }
+    .navbar-custom .navbar-collapse {
+      justify-content: flex-end;
+    }
+    .navbar-custom .navbar-nav .nav-link {
+      color: white !important;
+      margin-right: 5px;
+      padding: 8px 10px !important;
+    }
+    .navbar-custom .navbar-nav .nav-link:hover {
+      color: #ccc !important;
+    }
+    .nav-button {
+      padding: 8px 20px;
+      background-color: #2c5364;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .nav-button:hover {
+      background-color: #203a43;
+    }
+    .dropdown-menu {
+      background-color: #1a1a2e;
+      border: 1px solid #2c5364;
+    }
+    .dropdown-menu .dropdown-item {
+      color: #ffffffcc;
+      padding: 10px 16px;
+    }
+    .dropdown-menu .dropdown-item:hover {
+      background-color: #203a43;
+      color: white;
+    }
+    .navbar-custom .navbar-toggler {
+      border-color: rgba(255,255,255,0.3);
+    }
+    .navbar-custom .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+    footer {
+      background-color: #1a1a2e;
+      color: white;
+      text-align: center;
+      padding: 0;
+      /* Removed fixed positioning to prevent hiding content */
+      /* position: fixed; */
+      /* bottom: 0; */
+      height: 40px;
+      line-height: 40px;
+      width: 100%;
+      margin-top: 20px; /* Added margin to separate from content */
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+      color: white;
+    }
+    .btn-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: white;
+    }
+    .btn-secondary:hover {
+      background-color: #5a6268;
+      border-color: #545b62;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="/images/banyan-logo.png.png" alt="Banyan Logo" style="height:40px; vertical-align: middle; margin-right: 10px;" />
+      BANYAN Informatics
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('ENGINEER_PAGE')">
+          <a class="nav-link" href="/engineer-form">Engineer</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('CUSTOMER_PAGE')">
+          <a class="nav-link" href="/customer-form">Customer</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasAuthority('DETAILS_PAGE')">
+          <a class="nav-link" href="/details">Work Details</a>
+        </li>
+        <li class="nav-item dropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+          <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Authorization
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="authDropdown">
+            <li><a class="dropdown-item" th:href="@{/manage-role-access}">Manage-Role-access</a></li>
+            <li><a class="dropdown-item" th:href="@{/add-user}">Add User</a></li>
+            <li><a class="dropdown-item" th:href="@{/time-management}">Time</a></li>
+            <li><a class="dropdown-item" th:href="@{/activity-logs}">Activity Logs</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <form th:action="@{/logout}" method="post" class="d-flex">
+            <button type="submit" class="nav-button">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  <div class="container my-4">
+    <h1 class="text-dark mb-4 text-center">Activity Logs</h1>
+
+  <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <form class="row g-3" th:action="@{/activity-logs}" method="get">
+        <div class="col-md-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" id="username" name="username" th:value="${filterType == 'username'} ? ${filterValue} : ''" placeholder="Filter by username" class="form-control" />
+        </div>
+        <div class="col-md-3">
+          <label for="action" class="form-label">Action</label>
+          <select id="action" name="action" class="form-select">
+            <option value="">All actions</option>
+            <option value="LOGIN" th:selected="${filterType == 'action' && filterValue == 'LOGIN'}">Login</option>
+            <option value="LOGOUT" th:selected="${filterType == 'action' && filterValue == 'LOGOUT'}">Logout</option>
+            <option value="VIEW" th:selected="${filterType == 'action' && filterValue == 'VIEW'}">View</option>
+            <option value="FILTER_SEARCH" th:selected="${filterType == 'action' && filterValue == 'FILTER_SEARCH'}">FILTER_SEARCH</option>
+            <option value="SAVE" th:selected="${filterType == 'action' && filterValue == 'SAVE'}">SAVE</option>
+            <option value="EDIT" th:selected="${filterType == 'action' && filterValue == 'EDIT'}">EDIT</option>
+            <option value="DELETE" th:selected="${filterType == 'action' && filterValue == 'DELETE'}">DELETE</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input type="date" id="startDate" name="startDate" th:value="${startDate}" class="form-control" />
+        </div>
+        <div class="col-md-3">
+          <label for="endDate" class="form-label">End Date</label>
+          <input type="date" id="endDate" name="endDate" th:value="${endDate}" class="form-control" />
+        </div>
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Apply Filters</button>
+          <a th:href="@{/activity-logs}" class="btn btn-secondary">Clear</a>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <button id="bulkDeleteBtn" class="btn btn-primary" disabled>Delete Selected</button>
+  </div>
+
+  <form id="logsForm" method="post" th:action="@{/activity-logs/bulk-delete}">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover align-middle" th:if="${logs != null && !logs.empty}">
+        <thead class="table-dark">
+          <tr>
+            <th><input type="checkbox" id="selectAll" /></th>
+            <th>Timestamp</th>
+            <th>Username</th>
+            <th>Action</th>
+            <th>Message</th>
+            <th>IP Address</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="log : ${logs}">
+            <td><input type="checkbox" name="ids" th:value="${log.id}" class="selectBox" /></td>
+            <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${log.username}"></td>
+            <td th:classappend="${log.action == 'LOGIN'} ? 'text-success' : (${log.action == 'LOGOUT'} ? 'text-danger' : 'text-info')" th:text="${log.action}"></td>
+            <td th:text="${log.message}"></td>
+            <td th:text="${log.ipAddress}"></td>
+            <td><button type="button" class="btn btn-info btn-sm viewDetailsBtn" th:data-id="${log.id}">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+
+  <div th:if="${logs == null || logs.empty}" class="text-center fst-italic text-muted py-5">
+    No activity logs found for the selected filters.
+  </div>
+
+  <nav aria-label="Page navigation" th:if="${logs != null && !logs.empty}">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+        <a class="page-link" th:href="@{/activity-logs(page=${currentPage - 1}, size=${logs.size}, username=${param.username}, action=${param.action}, startDate=${param.startDate}, endDate=${param.endDate})}" aria-label="Previous">
+          <span aria-hidden="true">&laquo; Previous</span>
+        </a>
+      </li>
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages > 10 ? 9 : totalPages - 1)}" th:classappend="${i == currentPage} ? 'active'">
+        <a class="page-link" th:href="@{/activity-logs(page=${i}, size=${logs.size}, username=${param.username}, action=${param.action}, startDate=${param.startDate}, endDate=${param.endDate})}" th:text="${i + 1}"></a>
+      </li>
+      <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+        <a class="page-link" th:href="@{/activity-logs(page=${currentPage + 1}, size=${logs.size}, username=${param.username}, action=${param.action}, startDate=${param.startDate}, endDate=${param.endDate})}" aria-label="Next">
+          <span aria-hidden="true">Next &raquo;</span>
+        </a>
+      </li>
+    </ul>
+    <div class="text-center fw-semibold text-primary">
+      Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span>
+    </div>
+  </nav>
+</div>
+
+<!-- Modal for detailed view -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" aria-labelledby="logDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logDetailModalLabel">Activity Log Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="logDetailsContent">
+        <!-- Details will be loaded here dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2005 Banyan Informatics. All rights reserved.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Toggle dropdown on mobile
+  function toggleDropdown(event) {
+    if (window.innerWidth <= 768) {
+      event.preventDefault();
+      document.getElementById('authDropdown').classList.toggle('open');
+    }
+  }
+
+  // Modal elements
+  const modal = new bootstrap.Modal(document.getElementById('logDetailModal'));
+  const logDetailsContent = document.getElementById('logDetailsContent');
+
+  // Open modal and fetch log details
+  document.querySelectorAll('.viewDetailsBtn').forEach(button => {
+    button.addEventListener('click', () => {
+      const logId = button.getAttribute('data-id');
+      fetch(`/api/activity-logs/${logId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Log not found');
+          }
+          return response.json();
+        })
+        .then(log => {
+          logDetailsContent.innerHTML = `
+            <p><strong>ID:</strong> ${log.id}</p>
+            <p><strong>Username:</strong> ${log.username}</p>
+            <p><strong>Timestamp:</strong> ${new Date(log.timestamp).toLocaleString()}</p>
+            <p><strong>Action:</strong> ${log.action}</p>
+            <p><strong>Message:</strong> ${log.message}</p>
+            <p><strong>IP Address:</strong> ${log.ipAddress}</p>
+          `;
+          modal.show();
+        })
+        .catch(error => {
+          logDetailsContent.innerHTML = `<p class="text-danger">Error loading log details: ${error.message}</p>`;
+          modal.show();
+        });
+    });
+  });
+
+  // Bulk actions buttons and checkboxes
+  const selectAllCheckbox = document.getElementById('selectAll');
+  const selectBoxes = document.querySelectorAll('.selectBox');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+  const logsForm = document.getElementById('logsForm');
+
+  function updateBulkButtons() {
+    const anyChecked = Array.from(selectBoxes).some(cb => cb.checked);
+    bulkDeleteBtn.disabled = !anyChecked;
+  }
+
+  selectAllCheckbox.addEventListener('change', () => {
+    selectBoxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+    updateBulkButtons();
+  });
+
+  selectBoxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (!cb.checked) {
+        selectAllCheckbox.checked = false;
+      } else if (Array.from(selectBoxes).every(cb => cb.checked)) {
+        selectAllCheckbox.checked = true;
+      }
+      updateBulkButtons();
+    });
+  });
+
+  bulkDeleteBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to delete the selected logs?')) {
+      logsForm.action = '/activity-logs/bulk-delete';
+      logsForm.submit();
+    }
+  });
+
+  // Auto-refresh logs every 60 seconds
+  setInterval(() => {
+    window.location.reload();
+  }, 60000);
+</script>
+</body>
+</html>

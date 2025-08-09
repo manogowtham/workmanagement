@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Banyan Informatics</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #f4f8fb;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+   header {
+      background-color: #1a1a2e;
+      color: white;
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+      user-select: none;
+      letter-spacing: 1.5px;
+    }
+
+    main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 40px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 320px;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    h2 {
+      color: #2c5364;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px 0;
+      font-weight: 500;
+      color: #333;
+      text-align: left;
+    }
+
+    .input-group {
+      position: relative;
+      width: 100%;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px 40px 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #2c5364;
+      outline: none;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+      color: #888;
+      user-select: none;
+    }
+
+    .remember-me {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #333;
+      user-select: none;
+    }
+
+    .remember-me input {
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #2c5364;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #203a43;
+    }
+
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+      display: none;
+    }
+
+    button.loading .spinner {
+      display: inline-block;
+    }
+
+    .message {
+      margin-top: 20px;
+      color: #cc3333;
+      font-weight: 500;
+    }
+
+    .logout-message {
+      color: #2c5364;
+    }
+
+      footer {
+      background-color: #1a1a2e;
+      color: white;
+      text-align: center;
+      padding: 0;
+      position: fixed;
+      bottom: 0;
+      height: 40px;
+      line-height: 40px;
+      width: 100%;
+    }
+
+    @media (max-width: 400px) {
+      .login-container {
+        padding: 30px 20px;
+        width: 100%;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        padding: 10px 35px 10px 12px;
+        font-size: 14px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BANYAN Informatics</h1>
+  </header>
+
+  <main>
+    <div class="login-container">
+      <h2>Login</h2>
+      <form th:action="@{/login}" method="post" id="loginForm" novalidate>
+        <label for="username">Username:</label>
+        <input id="username" type="text" name="username" required autocomplete="username" aria-describedby="usernameError" />
+        <div id="usernameError" style="text-align:left; font-size: 13px; margin-top: 3px; color: #cc3333; display:none;">Username is required.</div>
+
+        <label for="password">Password:</label>
+        <div class="input-group">
+          <input id="password" type="password" name="password" required autocomplete="current-password" aria-describedby="passwordHelp passwordStrength" />
+          <span class="toggle-password" id="togglePassword" aria-label="Toggle password visibility" role="button" tabindex="0">&#128065;</span>
+        </div>
+        <div id="passwordStrength" style="text-align:left; font-size: 13px; margin-top: 5px; color: #666;"></div>
+        <div id="passwordHelp" style="text-align:left; font-size: 12px; color: #999; margin-top: 3px;">Use at least 8 characters with a mix of letters, numbers & symbols.</div>
+
+        <div class="remember-me">
+          <input type="checkbox" id="rememberMe" name="remember-me" />
+          <label for="rememberMe">Remember me</label>
+        </div>
+
+        <button type="submit" id="loginButton">
+          Login
+          <span class="spinner" id="spinner"></span>
+        </button>
+      </form>
+
+      <p class="message" th:if="${param.error}">Invalid username or password</p>
+      <p class="message logout-message" th:if="${param.logout}">You have been logged out</p>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Banyan Informatics. All rights reserved.
+  </footer>
+
+  <script>
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const usernameInput = document.getElementById('username');
+    const usernameError = document.getElementById('usernameError');
+
+    // Show password toggle on click and on hover
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type');
+      passwordInput.setAttribute('type', type === 'password' ? 'text' : 'password');
+      togglePassword.style.color = type === 'password' ? '#2c5364' : '#888';
+    });
+
+    togglePassword.addEventListener('mouseenter', () => {
+      passwordInput.setAttribute('type', 'text');
+      togglePassword.style.color = '#2c5364';
+    });
+
+    togglePassword.addEventListener('mouseleave', () => {
+      if (passwordInput.getAttribute('type') === 'text') {
+        passwordInput.setAttribute('type', 'password');
+        togglePassword.style.color = '#888';
+      }
+    });
+
+    togglePassword.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePassword.click();
+      }
+    });
+
+    // Password strength meter function
+    function checkPasswordStrength(password) {
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+      switch (strength) {
+        case 0:
+        case 1:
+        case 2:
+          return {text: 'Weak', color: '#cc3333'};
+        case 3:
+        case 4:
+          return {text: 'Moderate', color: '#e6a23c'};
+        case 5:
+          return {text: 'Strong', color: '#2c5364'};
+      }
+    }
+
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      if (val.length === 0) {
+        passwordStrength.textContent = '';
+      } else {
+        const result = checkPasswordStrength(val);
+        passwordStrength.textContent = `Strength: ${result.text}`;
+        passwordStrength.style.color = result.color;
+      }
+    });
+
+    // Inline validation for username and password
+    usernameInput.addEventListener('input', () => {
+      if (usernameInput.value.trim() === '') {
+        usernameError.style.display = 'block';
+      } else {
+        usernameError.style.display = 'none';
+      }
+    });
+
+    const form = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+
+    form.addEventListener('submit', (e) => {
+      let valid = true;
+      if (usernameInput.value.trim() === '') {
+        usernameError.style.display = 'block';
+        valid = false;
+      } else {
+        usernameError.style.display = 'none';
+      }
+      if (passwordInput.value.trim() === '') {
+        passwordStrength.textContent = 'Password is required.';
+        passwordStrength.style.color = '#cc3333';
+        valid = false;
+      }
+      if (!valid) {
+        e.preventDefault();
+        return;
+      }
+      loginButton.disabled = true;
+      loginButton.classList.add('loading');
+    });
+  </script>
+</body>
+</html>

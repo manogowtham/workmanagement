@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work Details List</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+/* Custom colors to match existing style */
+.navbar-custom {
+  background-color: #1a1a2e !important;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-custom .container-fluid {
+  justify-content: space-between;
+}
+
+.navbar-custom .navbar-brand {
+  color: white !important;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-custom .navbar-nav {
+  margin-right: 0 !important;
+}
+
+.navbar-custom .navbar-collapse {
+  justify-content: flex-end;
+}
+
+.navbar-custom .navbar-nav .nav-link {
+  color: white !important;
+  margin-right: 5px;
+  padding: 8px 10px !important;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover {
+  color: #ccc !important;
+}
+
+.nav-button {
+  padding: 8px 20px;
+  background-color: #2c5364;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #203a43;
+}
+
+.navbar-custom .navbar-toggler {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.navbar-custom .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.dropdown-menu {
+  background-color: #1a1a2e;
+  border: 1px solid #2c5364;
+}
+
+.dropdown-menu .dropdown-item {
+  color: #ffffffcc;
+  padding: 10px 16px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #203a43;
+  color: white;
+}
+
+footer {
+  background-color: #1a1a2e;
+  color: white;
+  text-align: center;
+  padding: 0;
+  position: relative;
+  bottom: 0;
+  height: 40px;
+  line-height: 40px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Custom button styles to restore original colors */
+.btn-custom-primary {
+  background-color: #2c5364;
+  border-color: #2c5364;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.btn-custom-primary:hover {
+  background-color: #203a43;
+  border-color: #203a43;
+  color: white;
+}
+
+.btn-custom-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.btn-custom-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+}
+
+/* Custom table header styling */
+.table-custom thead th {
+  background-color: #2c5364;
+  color: white;
+  border-color: #2c5364;
+}
+
+/* Scrollable table container */
+.table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+}
+
+.table-container .table {
+  margin-bottom: 0;
+}
+
+.table-container .table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #2c5364;
+  border-bottom: 2px solid #2c5364;
+}
+
+/* Action button styling */
+.btn-action {
+  padding: 4px 12px;
+  font-size: 12px;
+  margin: 2px;
+}
+
+/* Search and Filter Container */
+.search-filter-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.search-filter-container .form-control,
+.search-filter-container .form-select {
+  width: 150px;
+  min-width: 150px;
+}
+
+.search-filter-container .btn {
+  white-space: nowrap;
+}
+
+/* Navigation container */
+.navigation-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Pagination wrapper */
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Custom pagination styling */
+.pagination-custom {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.pagination-custom a {
+  padding: 6px 12px;
+  border: 1px solid #2c5364;
+  color: #2c5364;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-custom a:hover {
+  background-color: #2c5364;
+  color: white;
+}
+
+.pagination-custom a.active {
+  background-color: #2c5364;
+  color: white;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Go To Page form */
+.pagination-wrapper form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-wrapper form label {
+  font-weight: 600;
+}
+
+.pagination-wrapper form input[type="number"] {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.pagination-wrapper form button {
+  padding: 6px 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-wrapper form button:hover {
+  background-color: #218838;
+}
+
+.pagination-wrapper form span {
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navigation-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .pagination-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .pagination-custom {
+    flex-wrap: wrap;
+  }
+
+  .pagination-custom a {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+
+  .pagination-wrapper form {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .pagination-wrapper form input[type="number"] {
+    width: 100%;
+    max-width: 120px;
+  }
+
+  .pagination-wrapper form button {
+    width: 100%;
+    max-width: 120px;
+  }
+
+  .pagination-wrapper form label,
+  .pagination-wrapper form span {
+    width: 100%;
+  }
+
+  .search-filter-container {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .search-filter-container .form-control,
+  .search-filter-container .form-select,
+  .search-filter-container .btn {
+    width: 100%;
+    margin: 5px 0;
+  }
+}
+
+h2 {
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="/images/banyan-logo.png.png" alt="Banyan Logo" style="height:40px; vertical-align: middle; margin-right: 10px;" />
+      BANYAN Informatics
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        
+        <!-- Show Engineer link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('ENGINEER_PAGE')">
+          <a class="nav-link" href="/engineer-form">Engineer</a>
+        </li>
+        
+        <!-- Show Customer link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('CUSTOMER_PAGE')">
+          <a class="nav-link" href="/customer-form">Customer</a>
+        </li>
+        
+        <!-- Show Work Details link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('DETAILS_PAGE')">
+          <a class="nav-link" href="/details">Work Details</a>
+        </li>
+        
+        <!-- Authorization dropdown for SUPERADMIN -->
+        <li class="nav-item dropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+          <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Authorization
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" th:href="@{/manage-role-access}">Manage-Role-access</a></li>
+            <li><a class="dropdown-item" th:href="@{/add-user}">Add User</a></li>
+            <li><a class="dropdown-item" th:href="@{/time-management}">Time</a></li>
+            <li><a class="dropdown-item" th:href="@{/activity-logs}">Activity Logs</a></li>
+          </ul>
+        </li>
+        
+        <li class="nav-item">
+          <form th:action="@{/logout}" method="post" class="d-flex">
+            <button type="submit" class="nav-button">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="wrapper">
+  <div class="content">
+<h2 >Work Details List</h2>
+
+  
+
+  <!-- Search and Filter Form -->
+  <form class="search-filter-container" th:action="@{/details-list}" method="get">
+    <!-- Engineer filter - show different UI based on number of engineers -->
+    <div th:if="${#lists.size(engineers) > 1}">
+      <select name="engineer" id="engineer-search" th:value="${engineer}" class="form-select">
+        <option value="">Select Engineer</option>
+        <th:block th:each="eng : ${engineers}">
+          <option th:value="${eng.name}" th:text="${eng.name}" th:selected="${eng.name == engineer}"></option>
+        </th:block>
+      </select>
+    </div>
+    
+    <!-- Show fixed engineer name when only one engineer (tagged engineer) -->
+    <div th:if="${#lists.size(engineers) == 1}" class="d-flex align-items-center">
+      <input type="text" th:value="'Engineer: ' + ${engineers[0].name}" readonly class="form-control" 
+             style="background-color: #e9ecef; font-weight: 500;" />
+      <input type="hidden" name="engineer" th:value="${engineers[0].name}" />
+    </div>
+    <input type="text" name="customer" id="customer-search" placeholder="Search by Customer" th:value="${customer}" class="form-control" />
+    <select name="status" id="status-filter" th:value="${status}" class="form-select">
+      <option value="">Filter by Status</option>
+      <option value="Completed" th:selected="${status == 'Completed'}">Completed</option>
+      <option value="Pending" th:selected="${status == 'Pending'}">Pending</option>
+      <option value="In Progress" th:selected="${status == 'In Progress'}">In Progress</option>
+      <option value="Follow Up" th:selected="${status == 'Follow Up'}">Follow Up</option>
+    </select>
+    <input type="date" name="startDate" id="start-date" th:value="${startDate}" class="form-control" />
+    <input type="date" name="endDate" id="end-date" th:value="${endDate}" class="form-control" />
+    <button type="submit" class="btn btn-custom-primary">Search</button>
+    <a href="/details-list" class="btn btn-custom-primary" type="button">Reset</a>
+    <button type="button" onclick="downloadFilteredTable()" class="btn btn-custom-secondary">Download Excel</button>
+  </form>
+  <div class="container-fluid">
+    <div class="table-responsive">
+      <div class="table-container">
+        <table id="work-details-table" class="table table-striped table-bordered table-custom">
+        <thead>
+          <tr>
+             <th>Date</th>
+            <th>In Time</th>
+            <th>Out Time</th>
+            <th>Total Hours</th>
+            <th>Type of Work</th>
+            <th>Engineer Name</th>
+            <th>Customer Name</th>
+            <th>Location</th>
+            <th>Type of Service</th>
+            <th>Status</th>
+            <th>Bill Amount</th>
+            <th>Payment Mode</th>
+            <th>Work Description</th>
+            <th>Kilometer</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+    <tbody>
+      <tr th:each="workDetail : ${workDetailsPage.content}">
+         <td th:text="${workDetail.date}"></td>
+       <td th:text="${workDetail.inTime}"></td>
+  <td th:text="${workDetail.outTime}"></td>
+        <td class="total-hours"></td>
+        <td th:text="${workDetail.typeOfWork}"></td>
+        <td th:text="${workDetail.engineerName}"></td>
+        <td th:text="${workDetail.customerName}"></td>
+        <td th:text="${workDetail.location}"></td>
+        <td th:text="${workDetail.typeOfService}"></td>
+        <td th:text="${workDetail.status}"></td>
+        <td th:text="${workDetail.billAmount}"></td>
+        <td th:text="${workDetail.paymentMode}"></td>
+        <td th:text="${workDetail.workDescription}"></td>
+        <td th:text="${workDetail.kilometer}"></td>
+        
+        
+        
+          <td>
+            <div th:if="${#authorization.expression('hasAuthority(''DETAILS_EDIT'')')}">
+              <a th:href="@{/details/{id}(id=${workDetail.id})}" class="btn btn-custom-primary btn-action">Edit</a>
+            </div>
+            <div th:if="${#authorization.expression('hasAuthority(''DETAILS_DELETE'')')}">
+              <a th:href="@{/delete/{id}(id=${workDetail.id})}" class="btn btn-custom-secondary btn-action"
+               onclick="return confirm('Are you sure you want to delete this?');">Delete</a>
+            </div>
+            <a th:href="@{/view/{id}(id=${workDetail.id})}" target="_blank" class="btn btn-info btn-action">View</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="navigation-container">
+      <!-- Back Button -->
+      <div class="back-button-container">
+        <a href="/details" class="btn btn-custom-primary">← Back</a>
+      </div>
+    
+      <!-- Pagination and Go To Page -->
+      <div class="pagination-wrapper">
+    
+        <ul class="pagination-custom">
+          <!-- Previous Button -->
+          <li th:if="${currentPage > 0}">
+            <a th:href="@{'/details-list'(page=${currentPage - 1}, engineer=${engineer}, customer=${customer}, status=${status}, startDate=${startDate}, endDate=${endDate})}">&laquo; Previous</a>
+          </li>
+    
+          <!-- Page Numbers -->
+          <li th:each="i : ${#numbers.sequence((currentPage > 0 ? currentPage - 1 : 0), (currentPage + 1 < totalPages ? currentPage + 1 : totalPages - 1))}">
+            <a th:href="@{'/details-list'(page=${i}, engineer=${engineer}, customer=${customer}, status=${status}, startDate=${startDate}, endDate=${endDate})}"
+               th:text="${i + 1}"
+               th:classappend="${i == currentPage} ? 'active' : ''"
+               th:style="${i == currentPage} ? 'active-style' : ''">
+            </a>
+          </li>
+    
+          <!-- Next Button -->
+          <li th:if="${currentPage < totalPages - 1}">
+            <a th:href="@{'/details-list'(page=${currentPage + 1}, engineer=${engineer}, customer=${customer}, status=${status}, startDate=${startDate}, endDate=${endDate})}">Next &raquo;</a>
+          </li>
+        </ul>
+  
+        <!-- Go To Page Form -->
+        <form th:action="@{/details-list}" method="get" onsubmit="return validatePageInput()" class="d-flex align-items-center gap-2">
+          <label for="pageInput" class="form-label mb-0">Go to page:</label>
+          <input type="number" id="pageInput" name="page" min="0" required class="form-control" style="width: 80px;" />
+          <button type="submit" class="btn btn-success">Go</button>
+          <span class="fw-bold">Total Pages: <strong th:text="${totalPages}"></strong></span>
+          <input type="hidden" name="engineer" th:value="${engineer}" />
+          <input type="hidden" name="customer" th:value="${customer}" />
+          <input type="hidden" name="status" th:value="${status}" />
+          <input type="hidden" name="startDate" th:value="${startDate}" />
+          <input type="hidden" name="endDate" th:value="${endDate}" />
+        </form>
+    
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  </div>
+<footer>
+  &copy; 2005 Banyan Informatics. All rights reserved.
+</footer>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script th:inline="javascript">
+  function validatePageInput() {
+    const pageInput = document.getElementById('pageInput');
+    if (!pageInput.value) return false;
+    
+    let val = parseInt(pageInput.value);
+    const totalPages = /*[[${totalPages}]]*/ 1;
+    if (isNaN(val) || val < 1 || val > totalPages) {
+      alert('Please enter a page number between 1 and ' + totalPages);
+      return false;
+    }
+
+    const page = val - 1; // Convert to 0-based index
+
+    // Get filter values from form inputs
+    let engineer = '';
+    const engineerSelect = document.querySelector('select[name="engineer"]');
+    const engineerInput = document.querySelector('input[name="engineer"]');
+    if (engineerSelect) {
+      engineer = engineerSelect.value;
+    } else if (engineerInput) {
+      engineer = engineerInput.value;
+    }
+    
+    const customer = document.querySelector('input[name="customer"]').value;
+    const status = document.querySelector('select[name="status"]').value;
+    const startDate = document.querySelector('input[name="startDate"]').value;
+    const endDate = document.querySelector('input[name="endDate"]').value;
+
+    // Build query params
+    let query = `?page=${page}`;
+    if (engineer) query += `&engineer=${encodeURIComponent(engineer)}`;
+    if (customer) query += `&customer=${encodeURIComponent(customer)}`;
+    if (status) query += `&status=${encodeURIComponent(status)}`;
+    if (startDate) query += `&startDate=${startDate}`;
+    if (endDate) query += `&endDate=${endDate}`;
+
+    // Redirect with filters and page
+    window.location.href = '/details-list' + query;
+    return false; // prevent default form submission
+  }
+</script>
+
+<script>
+   // No additional navbar JavaScript needed - Bootstrap handles it
+  
+  function formatDatesInTable() {
+  const rows = document.querySelectorAll("#work-details-table tbody tr");
+  rows.forEach(row => {
+    const dateCell = row.cells[0];
+    const rawDate = dateCell.innerText.trim(); // yyyy-mm-dd
+    if (rawDate) {
+      const [yyyy, mm, dd] = rawDate.split("-");
+      dateCell.innerText = `${dd}-${mm}-${yyyy}`;
+    }
+  });
+}
+// Call it on page load:
+formatDatesInTable();
+  // Calculate total hours from In Time and Out Time
+  function calculateTotalHours() {
+    const rows = document.querySelectorAll("#work-details-table tbody tr");
+    rows.forEach(row => {
+      const inTime = row.cells[1].innerText.trim(); // In Time column
+      const outTime = row.cells[2].innerText.trim(); // Out Time column
+      if (inTime && outTime) {
+        const [inH, inM] = inTime.split(":").map(Number);
+        const [outH, outM] = outTime.split(":").map(Number);
+        let totalMinutes = (outH * 60 + outM) - (inH * 60 + inM);
+        if (totalMinutes < 0) totalMinutes += 24 * 60; // handle overnight
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        row.querySelector(".total-hours").innerText = `${hours}h ${minutes}m`;
+      } else {
+        row.querySelector(".total-hours").innerText = "-";
+      }
+    });
+  }
+  // Filter table rows based on input fields
+ function filterTable() {
+  // Get filter values and convert to lowercase where needed
+  let selectedEngineer = '';
+  const engineerElement = document.getElementById("engineer-search");
+  if (engineerElement) {
+    selectedEngineer = engineerElement.value.toLowerCase();
+  }
+  
+  const customerFilter = document.getElementById("customer-search").value.toLowerCase();
+  const statusFilter = document.getElementById("status-filter").value;
+  const startDate = document.getElementById("start-date").value;
+  const endDate = document.getElementById("end-date").value;
+  // Parse start/end dates (inputs are yyyy-mm-dd)
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+  // Function to parse date from table row - adjust format accordingly
+  // Here assuming dateStr is in dd-MM-yyyy (like 31-05-2025)
+  function parseDDMMYYYY(dateStr) {
+    const [dd, mm, yyyy] = dateStr.split("-");
+    return new Date(`${yyyy}-${mm}-${dd}`);
+  }
+  // Get all rows of the table
+  const rows = document.querySelectorAll("#work-details-table tbody tr");
+  rows.forEach(row => {
+    // Get the values from each row cell - adjust cell index as per your table
+    const engineer = row.cells[5].innerText.toLowerCase();
+    const customer = row.cells[6].innerText.toLowerCase();
+    const status = row.cells[9].innerText;
+    const dateStr = row.cells[0].innerText;  // date in dd-MM-yyyy format assumed
+    let show = true;
+    // Filter by engineer (if selected)
+    if (selectedEngineer && !engineer.includes(selectedEngineer)) {
+      show = false;
+    }
+    // Filter by customer (if input)
+    if (customerFilter && !customer.includes(customerFilter)) {
+      show = false;
+    }
+    // Filter by status (if selected)
+    if (statusFilter && status !== statusFilter) {
+      show = false;
+    }
+    // Filter by date range (if given)
+    if (dateStr) {
+      const rowDate = parseDDMMYYYY(dateStr);
+      if (start && rowDate < start) {
+        show = false;
+      }
+      if (end && rowDate > end) {
+        show = false;
+      }
+    }
+    // Show or hide the row
+    row.style.display = show ? "" : "none";
+  });
+}
+function resetFilters() {
+  const engineerElement = document.getElementById('engineer-search');
+  if (engineerElement) {
+    engineerElement.value = '';
+  }
+  document.getElementById('customer-search').value = '';
+  document.getElementById('status-filter').value = '';
+  document.getElementById('start-date').value = '';
+  document.getElementById('end-date').value = '';
+  filterTable(); // show all rows again
+}
+  // No additional dropdown JavaScript needed - Bootstrap handles it
+  // Initial calculation of total hours
+  document.addEventListener("DOMContentLoaded", () => {
+    calculateTotalHours();
+  });
+  function formatDateForFilename(dateStr) {
+    // Expects 'YYYY-MM-DD', returns 'YYYYMMDD' for filename safety
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr; // fallback
+    return parts.join('');
+}
+ function downloadFilteredTable() {
+  // Handle engineer field - it might be a dropdown or hidden input depending on permissions
+  let engineer = '';
+  const engineerDropdown = document.getElementById("engineer-search");
+  const engineerHidden = document.querySelector('input[name="engineer"]');
+  
+  if (engineerDropdown) {
+    engineer = engineerDropdown.value.trim();
+  } else if (engineerHidden) {
+    engineer = engineerHidden.value.trim();
+  }
+  
+  const customer = document.getElementById("customer-search").value.trim();
+  const status = document.getElementById("status-filter").value.trim();
+  const startDate = document.getElementById("start-date").value.trim(); // yyyy-MM-dd
+  const endDate = document.getElementById("end-date").value.trim();     // yyyy-MM-dd
+  
+  const params = new URLSearchParams();
+  if (engineer) params.append("engineer", engineer);
+  if (customer) params.append("customer", customer);
+  if (status) params.append("status", status);
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  
+  const url = "/download-work-details" + (params.toString() ? ("?" + params.toString()) : "");
+  window.location.href = url;
+}
+</script>
+
+<!-- Bootstrap JS and Popper.js for navbar toggle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

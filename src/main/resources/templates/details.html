@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work Details</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+  <style>
+/* Custom colors to match existing style */
+.navbar-custom {
+  background-color: #1a1a2e !important;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-custom .container-fluid {
+  justify-content: space-between;
+}
+
+.navbar-custom .navbar-brand {
+  color: white !important;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-custom .navbar-nav {
+  margin-right: 0 !important;
+}
+
+.navbar-custom .navbar-collapse {
+  justify-content: flex-end;
+}
+
+.navbar-custom .navbar-nav .nav-link {
+  color: white !important;
+  margin-right: 5px;
+  padding: 8px 10px !important;
+}
+
+.navbar-custom .navbar-nav .nav-link:hover {
+  color: #ccc !important;
+}
+
+.nav-button {
+  padding: 8px 20px;
+  background-color: #2c5364;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #203a43;
+}
+
+.navbar-custom .navbar-toggler {
+  border-color: rgba(255,255,255,0.3);
+}
+
+.navbar-custom .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.dropdown-menu {
+  background-color: #1a1a2e;
+  border: 1px solid #2c5364;
+}
+
+.dropdown-menu .dropdown-item {
+  color: #ffffffcc;
+  padding: 10px 16px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #203a43;
+  color: white;
+}
+
+footer {
+  background-color: #1a1a2e;
+  color: white;
+  text-align: center;
+  padding: 0;
+  position: fixed;
+  bottom: 0;
+  height: 40px;
+  line-height: 40px;
+  width: 100%;
+}
+
+/* Reduce form spacing */
+.form-row-custom {
+  margin-bottom: 1rem !important;
+}
+
+.form-row-custom .col-form-label {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  margin-bottom: 0;
+}
+
+/* Override Bootstrap form control colors and spacing */
+.form-control,
+.form-select {
+  color: #333;
+  border-radius: 6px;
+  border-color: #ccc;
+  padding: 0.375rem 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2c5364;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Custom button styles to restore original colors */
+.btn-custom-primary {
+  background-color: #2c5364;
+  border-color: #2c5364;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.btn-custom-primary:hover {
+  background-color: #203a43;
+  border-color: #203a43;
+  color: white;
+}
+
+.btn-custom-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+}
+
+.btn-custom-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+  color: white;
+}
+
+/* Fix for Select2 alignment with Bootstrap */
+.select2-container {
+  width: 100% !important;
+}
+
+.select2-selection--single {
+  height: calc(1.5em + 0.75rem + 2px) !important;
+  padding: 0.375rem 0.75rem !important;
+  border: 1px solid #ccc !important;
+  border-radius: 6px !important;
+  box-sizing: border-box;
+}
+
+.select2-selection__rendered {
+  line-height: 1.5 !important;
+  padding: 0 !important;
+}
+
+.select2-selection__arrow {
+  height: calc(1.5em + 0.75rem) !important;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .form-row-custom .col-sm-4,
+  .form-row-custom .col-sm-8 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .btn-group-mobile {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn-group-mobile .btn {
+    width: 100%;
+  }
+}
+
+#bankDetailsGroup {
+  display: none; /* Hidden by default */
+}
+
+/* When visible, show as flex with vertical layout */
+#bankDetailsGroup.visible {
+  display: block;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Optional fade-in animation */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="/images/banyan-logo.png.png" alt="Banyan Logo" style="height:40px; vertical-align: middle; margin-right: 10px;" />
+      BANYAN Informatics
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        
+        <!-- Show Engineer link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('ENGINEER_PAGE')">
+          <a class="nav-link" href="/engineer-form">Engineer</a>
+        </li>
+        
+        <!-- Show Customer link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('CUSTOMER_PAGE')">
+          <a class="nav-link" href="/customer-form">Customer</a>
+        </li>
+        
+        <!-- Show Work Details link only if user has permission -->
+        <li class="nav-item" sec:authorize="hasAuthority('DETAILS_PAGE')">
+          <a class="nav-link" href="/details">Work Details</a>
+        </li>
+        
+        <!-- Authorization dropdown for SUPERADMIN -->
+        <li class="nav-item dropdown" sec:authorize="hasAuthority('SUPERADMIN')">
+          <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Authorization
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" th:href="@{/manage-role-access}">Manage-Role-access</a></li>
+            <li><a class="dropdown-item" th:href="@{/add-user}">Add User</a></li>
+            <li><a class="dropdown-item" th:href="@{/time-management}">Time</a></li>
+            <li><a class="dropdown-item" th:href="@{/activity-logs}">Activity Logs</a></li>
+          </ul>
+        </li>
+        
+        <li class="nav-item">
+          <form th:action="@{/logout}" method="post" class="d-flex">
+            <button type="submit" class="nav-button">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<h2 style="text-align: center; margin-top: 20px;">Work Details</h2>
+
+<form th:action="@{/save-details}" th:object="${workDetails}" method="post" class="container mt-4 mb-5 p-4 bg-white rounded shadow" style="max-width: 700px;">
+  <input type="hidden" th:field="*{id}" />
+
+  
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Type of Work</label>
+    <div class="col-sm-8">
+      <select th:field="*{typeOfWork}" class="form-select">
+        <option value="">Select Type of Work</option>
+        <option value="Service">Service</option>
+        <option value="Purchase">Purchase</option>
+        <option value="Site Visit">Site Visit</option>
+        <option value="Delivery">Delivery</option>
+        <option value="AMC">AMC</option>
+        <option value="Sales & Marketing">Sales & Marketing</option>
+        <option value="Warranty Service">Warranty Service</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Engineer Name</label>
+    <div class="col-sm-8">
+      <!-- Show dropdown if multiple engineers available -->
+      <div th:if="${#lists.size(engineers) > 1}">
+        <select id="engineerName" th:field="*{engineerName}" required class="form-select">
+          <option value="">Select Engineer</option>
+          <th:block th:each="engineer : ${engineers}">
+            <option th:value="${engineer.name}" th:text="${engineer.name}"></option>
+          </th:block>
+        </select>
+      </div>
+      
+      <!-- Show readonly input if only one engineer (tagged engineer) -->
+      <div th:if="${#lists.size(engineers) == 1}">
+        <input type="text" th:value="${engineers[0].name}" readonly class="form-control" 
+               style="background-color: #f8f9fa; font-weight: 500;" />
+        <input type="hidden" th:field="*{engineerName}" />
+        <small class="form-text text-muted">
+          <i class="fas fa-info-circle"></i> Your assigned engineer
+        </small>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Customer Name</label>
+    <div class="col-sm-8">
+      <select id="customerNameSelect" th:field="*{customerName}" required onchange="fetchCustomerArea()" class="form-select">
+        <option value="">Select Customer</option>
+        <th:block th:each="customer : ${customers}">
+        <option 
+            th:value="${customer.companyName}" 
+            th:text="${customer.companyName}" 
+            th:data-area="${customer.area}">
+          </option>
+        </th:block>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Location</label>
+    <div class="col-sm-8">
+      <select id="locationDropdown" style="display:none;" class="form-select"></select>
+      <input type="text" th:field="*{location}" id="location" style="display:block;" class="form-control" />
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label for="date" class="col-sm-4 col-form-label fw-semibold text-dark">Date</label>
+    <div class="col-sm-8">
+      <input type="date"
+           th:field="*{date}"
+           th:min="${minDate}"
+           th:max="${maxDate}"
+           class="form-control"
+           required />
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-row-custom row">
+        <label class="col-sm-6 col-form-label fw-semibold text-dark">In Time</label>
+        <div class="col-sm-6">
+          <input type="time" name="inTime" th:field="*{inTime}" class="form-control" />
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-row-custom row">
+        <label class="col-sm-6 col-form-label fw-semibold text-dark">Out Time</label>
+        <div class="col-sm-6">
+          <input type="time" name="outTime" th:field="*{outTime}" class="form-control" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Kilometer</label>
+    <div class="col-sm-8">
+      <input type="number" min="0" step="0.01" id="kilometer" th:field="*{kilometer}" placeholder="Enter distance in km" class="form-control"/>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Type of Service</label>
+    <div class="col-sm-8">
+      <select th:field="*{typeOfService}" class="form-select">
+        <option value="">Select Type</option>
+        <option value="Computer Service">Computer Service</option>
+        <option value="CCTV">CCTV</option>
+        <option value="Networking">Networking</option>
+        <option value="Printers">Printers</option>
+        <option value="Material Purchased">Material Purchased</option>
+        <option value="Site Visit">Site Visit</option>
+        <option value="biometric Door Lock">biometric Door Lock</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Status</label>
+    <div class="col-sm-8">
+      <select th:field="*{status}" class="form-select">
+        <option value="">Select status</option>
+        <option value="Completed">Completed</option>
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Follow Up">Follow Up</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row-custom row">
+    <label class="col-sm-4 col-form-label fw-semibold text-dark">Work Description</label>
+    <div class="col-sm-8">
+      <textarea th:field="*{workDescription}" rows="4" placeholder="Describe the work done..." class="form-control"></textarea>
+    </div>
+  </div>
+
+  <div id="paymentSection">
+    <div class="form-row-custom row">
+      <label class="col-sm-4 col-form-label fw-semibold text-dark">Bill Amount</label>
+      <div class="col-sm-8">
+        <input type="number" step="0.01" th:field="*{billAmount}" placeholder="Enter billing amount" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-row-custom row">
+      <label class="col-sm-4 col-form-label fw-semibold text-dark">Receive Payment</label>
+      <div class="col-sm-8">
+        <select th:field="*{receivePayment}" id="paymentMode" onchange="toggleBankDetails()" class="form-select">
+          <option value="">Select Mode</option>
+          <option value="Cash">Cash</option>
+          <option value="G Pay">G Pay</option>
+          <option value="Bank">Bank</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row-custom row" id="bankDetailsGroup">
+      <label class="col-sm-4 col-form-label fw-semibold text-dark">Bank Details</label>
+      <div class="col-sm-8">
+        <textarea th:field="*{bankDetails}" rows="2" placeholder="Enter bank transaction details..." class="form-control"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap btn-group-mobile">
+    <div th:if="${#authorization.expression('hasAuthority(''DETAILS_SAVE'')')}">
+      <button type="submit" class="btn btn-custom-primary px-4">Save</button>
+    </div>
+
+    <button type="reset" class="btn btn-custom-primary px-4">Clear</button>
+
+    <div th:if="${#authorization.expression('hasAuthority(''DETAILS_SAVE'')')}">
+      <a href="/details-list" class="btn btn-custom-primary px-4 text-decoration-none">View</a>
+    </div>
+  </div>
+
+</form>
+
+<footer>
+  &copy; 2005 Banyan Informatics. All rights reserved.
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script>
+  $(document).ready(function () {
+    // Initialize Select2 for customer and engineer
+    $('#customerNameSelect').select2({
+      placeholder: 'Select Customer',
+      allowClear: true,
+      width: '100%',
+      matcher: function (params, data) {
+        if ($.trim(params.term) === '') {
+          return data;
+        }
+        if (typeof data.text === 'undefined') {
+          return null;
+        }
+        if (data.text.toLowerCase().startsWith(params.term.toLowerCase())) {
+          return data;
+        }
+        return null;
+      }
+    });
+
+    $('#engineerName').select2({
+      placeholder: 'Select Engineer',
+      allowClear: true,
+      width: '100%'
+    });
+
+    // Function to toggle bank details visibility
+    window.toggleBankDetails = function () {
+      const paymentMode = document.getElementById('paymentMode').value;
+      const bankDetailsGroup = document.getElementById('bankDetailsGroup');
+      bankDetailsGroup.style.display = paymentMode === 'Bank' ? 'block' : 'none';
+    };
+
+    // Function to update location dropdown or input based on selected customer
+    window.fetchCustomerArea = function () {
+      const customerSelect = document.getElementById('customerNameSelect');
+      const selectedOption = customerSelect.options[customerSelect.selectedIndex];
+      if (!selectedOption) return;
+
+      const area = selectedOption.getAttribute('data-area');
+      const customerName = selectedOption.value;
+
+      const locationDropdown = document.getElementById('locationDropdown');
+      const locationInput = document.getElementById('location');
+
+      // Determine if customer is "regular" by checking if multiple options with same customer name exist
+      const allOptions = Array.from(customerSelect.options);
+      const locations = allOptions
+        .filter(opt => opt.value === customerName)
+        .map(opt => opt.getAttribute('data-area'))
+        .filter(Boolean);
+      const isRegular = locations.length > 1;
+
+      if (isRegular) {
+        // Populate location dropdown with unique locations
+        const uniqueLocations = [...new Set(locations)];
+
+        // Clear previous options
+        locationDropdown.innerHTML = '';
+
+        // Add default option
+        const defaultOpt = document.createElement('option');
+        defaultOpt.value = '';
+        defaultOpt.textContent = 'Select Location';
+        locationDropdown.appendChild(defaultOpt);
+
+        // Add location options
+        uniqueLocations.forEach(loc => {
+          const option = document.createElement('option');
+          option.value = loc;
+          option.textContent = loc;
+          locationDropdown.appendChild(option);
+        });
+
+        // Show dropdown, hide input
+        locationDropdown.style.display = 'block';
+        locationInput.style.display = 'none';
+
+        // Clear input value
+        locationInput.value = '';
+        locationDropdown.value = '';
+      } else {
+        // Show input, hide dropdown
+        locationDropdown.style.display = 'none';
+        locationInput.style.display = 'block';
+
+        // If area is defined, prefill the input
+        if (area) {
+          locationInput.value = area;
+        } else {
+          locationInput.value = '';
+        }
+      }
+    };
+
+    // Run toggleBankDetails on page load to set initial state
+    toggleBankDetails();
+
+    // Run fetchCustomerArea on page load in case of edit form with selected customer
+    fetchCustomerArea();
+
+    // No additional navbar JavaScript needed - Bootstrap handles it
+  });
+</script>
+
+<!-- Bootstrap JS and Popper.js for navbar toggle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
